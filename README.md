@@ -8,3 +8,5 @@ Lastly it will be to optimise and refactor code for a much cleaner approach and 
 
 Furthermore advanced JavaScript concepts will be used during this tutorial such as using Closures, Promises, Memoization 
 
+Will post a few things really soon 
+get ready
