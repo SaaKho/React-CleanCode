@@ -1,99 +1,85 @@
-console.log("Hello my name is Saadan");
+const express = require("express");
+import { PrismaClient } from "@prisma/client";
 
-//This is known as annotation once you have defined that this variable is a number
-//It cannot be changed
-let age: number = 20;
+const prisma = new PrismaClient();
+const app = express();
+const port = process.env.PORT || 3000;
 
-if (age > 30) {
-  console.log("Overage");
-} else {
-  console.log("UnderAge");
-}
+app.use(express.json());
 
-let ids: number[] = [1, 2, 3, 4, 5];
-let names: string[] = ["Saadan", "Wali"];
-let arr: any[] = [1, 2, true, "Saadan"]; //What is the point of using any when we are using ts for strict typing
+// POST API to register a user
+// app.post("/api/users/register", async (req, res) => {
+//   const { name, email, password } = req.body;
 
-//Tuple
-//With a Tuple you can speify the types in an array. We can do the same with any but one must avoid the use of any
-let person: [number, string, boolean] = [1, "Saadan", false];
+//   try {
+//     const user = await prisma.user.create({
+//       data: {
+//         name,
+//         email,
+//         password, 
+//       },
+//     });
+//     res.status(201).json(user);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(400).json({ message: error.message });
+//   }
+// });
 
-//Tuple Array
-let employeeType: [number, String][]; // First bracket is for Tuple the empty ones are for Array//Array of Tuples
-employeeType = [
-  [1, "Saadan"],
-  [1, "Brad"],
-  [1, "Mustafa"],
-  [1, "Wali"],
-];
+// app.post("/api/users/register", async (req, res) => {
+//   console.log(req.body); 
 
-//Union// If you want the variable to store more than one datatype
-let pid: number | string = 10;
+//   const { name, email, password } = req.body;
 
-//Enumeration
-enum directionOne {
-  Up,
-  Down,
-  Left,
-  Right,
-}
+//   if (!name || !email || !password) {
+//     return res.status(400).json({ message: "All fields (name, email, password) are required." });
+//   }
 
-type User = {
-  id: number;
-  name: string;
-};
+//   try {
+//     const user = await prisma.user.create({
+//       data: {
+//         name,
+//         email,
+//         password,
+//       },
+//     });
+//     res.status(201).json(user);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(400).json({ message: error.message });
+//   }
+// });
 
-const user: User = {
-  id: 1,
-  name: "Saadan",
-};
 
-//Functions
-function addNum(num1: number, num2: number): number {
-  return num1 + num2;
-}
-console.log(addNum(10, 2));
+//Post API to register a user
+app.post("/api/users/register", async (req, res) => {
+  console.log(req.body); // Log the incoming request body
 
-//Interface
-interface PersonInterface {
-  id: number;
-  name: string;
+  const { name, email, password } = req.body;
 
-  register(): string;
-}
-//Classes
-class Person implements PersonInterface {
-  id: number;
-  name: string;
-
-  constructor(id: number, name: string) {
-    this.id = id;
-    this.name = name;
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: "All fields (name, email, password) are required." });
   }
-  register() {
-    return `${this.name} is now registered`;
+
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password,
+      },
+    });
+    res.status(201).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
   }
-}
-const newPerson = new Person(1, "Saadan");
-const mike = new Person(2, "Mike Jordan");
+});
 
-//SubClass
-class Employee extends Person {
-  position: string;
+//
 
-  constructor(id: number, name: string, position: string) {
-    super(id, name);
-    this.position = position;
-  }
-}
 
-const newEmployee = new Employee(5, "Ronnie", "Manager");
-console.log(newEmployee.name);
-console.log(newEmployee.register());
 
-//Generics= used to build reusable components
-function getArray<T>(items: T[]): T[] {
-  return new Array().concat(items);
-}
-let numArray = getArray<number>([1, 2, 3, 4]);
-let strArray = getArray<string>(["Saadan", "Shahzil", "Wali"]);
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
