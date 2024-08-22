@@ -18,6 +18,7 @@ const uuid_1 = require("uuid");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const zod_1 = require("zod");
+const middleware_1 = require("./middleware");
 const prisma = new client_1.PrismaClient();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
@@ -43,6 +44,16 @@ const generateToken = (userId) => {
 app.get("/", (req, res) => {
     res.send("Welcome to my To Do App");
 });
+app.get("/api/users/getAllUsers", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield prisma.user.findMany();
+        res.json(users);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}));
 app.post("/api/users/register", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         registerSchema.parse(req.body);
@@ -89,7 +100,7 @@ app.post("/api/users/login", (req, res) => __awaiter(void 0, void 0, void 0, fun
         res.status(500).json({ message: "Internal Server Error" });
     }
 }));
-app.put("/api/users/update/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.put("/api/users/update/:id", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         registerSchema.partial().parse(req.body);
         const { id } = req.params;
@@ -112,7 +123,7 @@ app.put("/api/users/update/:id", (req, res) => __awaiter(void 0, void 0, void 0,
         res.status(400).json({ message: error.message });
     }
 }));
-app.delete("/api/users/delete/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.delete("/api/users/delete/:id", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
         yield prisma.user.delete({
@@ -125,7 +136,17 @@ app.delete("/api/users/delete/:id", (req, res) => __awaiter(void 0, void 0, void
         res.status(400).json({ message: error.message });
     }
 }));
-app.post("/api/todos/newtodo", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/api/todos/getAllTodo", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const todos = yield prisma.todo.findMany();
+        res.json(todos);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}));
+app.post("/api/todos/newtodo", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         todoSchema.parse(req.body);
         const { title, description, status } = req.body;
@@ -147,27 +168,7 @@ app.post("/api/todos/newtodo", (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(400).json({ message: error.message });
     }
 }));
-app.get("/api/users/getAllUsers", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const users = yield prisma.user.findMany();
-        res.json(users);
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-}));
-app.get("/api/todos/getAllTodo", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const todos = yield prisma.todo.findMany();
-        res.json(todos);
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-}));
-app.put("/api/todos/update/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.put("/api/todos/update/:id", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         todoSchema.partial().parse(req.body);
         const { id } = req.params;
@@ -190,7 +191,7 @@ app.put("/api/todos/update/:id", (req, res) => __awaiter(void 0, void 0, void 0,
         res.status(400).json({ message: error.message });
     }
 }));
-app.delete("/api/todos/delete/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.delete("/api/todos/delete/:id", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
         yield prisma.todo.delete({
